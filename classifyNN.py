@@ -1,13 +1,8 @@
 
 # coding: utf-8
-
-# ### Your very own neural network
-# 
-# In this notebook we're going to build a neural network using naught but pure numpy and steel nerves. It's going to be fun, I promise!
-# 
 # <img src="frankenstein.png" style="width:20%">
 
-# In[24]:
+
 
 
 import sys
@@ -16,14 +11,14 @@ import tqdm_utils
 import download_utils
 
 
-# In[25]:
 
 
-# use the preloaded keras datasets and models
+
+
 download_utils.link_all_keras_resources()
 
 
-# In[26]:
+
 
 
 from __future__ import print_function
@@ -31,21 +26,13 @@ import numpy as np
 np.random.seed(42)
 
 
-# Here goes our main class: a layer that can do .forward() and .backward() passes.
 
-# In[27]:
 
+
+#SAMPLE TEMPLATE
 
 class Layer:
-    """
-    A building block. Each layer is capable of performing two things:
     
-    - Process input to get output:           output = layer.forward(input)
-    
-    - Propagate gradients through itself:    grad_input = layer.backward(input, grad_output)
-    
-    Some layers also have learnable parameters which they update during layer.backward.
-    """
     def __init__(self):
         """Here you can initialize layer parameters (if any) and auxiliary stuff."""
         # A dummy layer does nothing
@@ -78,22 +65,17 @@ class Layer:
         return np.dot(grad_output, d_layer_d_input) # chain rule
 
 
-# ### The road ahead
-# 
+
 # We're going to build a neural network that classifies MNIST digits. To do so, we'll need a few building blocks:
 # - Dense layer - a fully-connected layer, $f(X)=W \cdot X + \vec{b}$
 # - ReLU layer (or any other nonlinearity you want)
 # - Loss function - crossentropy
 # - Backprop algorithm - a stochastic gradient descent with backpropageted gradients
-# 
-# Let's approach them one at a time.
-# 
+ 
 
 # ### Nonlinearity layer
-# 
 # This is the simplest layer you can get: it simply applies a nonlinearity to each element of your network.
-
-# In[28]:
+#example of RELu
 
 
 class ReLU(Layer):
@@ -123,17 +105,7 @@ numeric_grads = eval_numerical_gradient(lambda x: l.forward(x).mean(), x=x)
 assert np.allclose(grads, numeric_grads, rtol=1e-3, atol=0),    "gradient returned by your layer does not match the numerically computed gradient"
 
 
-# #### Instant primer: lambda functions
-# 
-# In python, you can define functions in one line using the `lambda` syntax: `lambda param1, param2: expression`
-# 
-# For example: `f = lambda x, y: x+y` is equivalent to a normal function:
-# 
-# ```
-# def f(x,y):
-#     return x+y
-# ```
-# For more information, click [here](http://www.secnetix.de/olli/Python/lambda_functions.hawk).    
+  
 
 # ### Dense layer
 # 
@@ -149,30 +121,18 @@ assert np.allclose(grads, numeric_grads, rtol=1e-3, atol=0),    "gradient return
 # 
 # Both W and b are initialized during layer creation and updated each time backward is called.
 
-# In[30]:
-
 
 class Dense(Layer):
     def __init__(self, input_units, output_units, learning_rate=0.1):
-        """
-        A dense layer is a layer which performs a learned affine transformation:
-        f(x) = <W*x> + b
-        """
-        self.learning_rate = learning_rate
+        = <W*x> + b
         
-        # initialize weights with small random numbers. We use normal initialization, 
-        # but surely there is something better. Try this once you got it working: http://bit.ly/2vTlmaJ
+        self.learning_rate = learning_rate
+      
         self.weights = np.random.randn(input_units, output_units)*0.01
         self.biases = np.zeros(output_units)
         
     def forward(self,input):
-        """
-        Perform an affine transformation:
-        f(x) = <W*x> + b
-        
-        input shape: [batch, input_units]
-        output shape: [batch, output units]
-        """
+       
         return np.dot(input, self.weights) + self.biases
     
     def backward(self,input,grad_output):
@@ -203,15 +163,15 @@ class Dense(Layer):
 # * If you're debugging, try saving gradients in class fields, like "self.grad_w = grad_w" or print first 3-5 weights. This helps debugging.
 # * If nothing else helps, try ignoring tests and proceed to network training. If it trains alright, you may be off by something that does not affect network training.
 
-# In[31]:
+
 
 
 l = Dense(128, 150)
 
-assert -0.05 < l.weights.mean() < 0.05 and 1e-3 < l.weights.std() < 1e-1,    "The initial weights must have zero mean and small variance. "    "If you know what you're doing, remove this assertion."
-assert -0.05 < l.biases.mean() < 0.05, "Biases must be zero mean. Ignore if you have a reason to do otherwise."
+assert -0.05 < l.weights.mean() < 0.05 and 1e-3 < l.weights.std() < 1e-1,       
+assert -0.05 < l.biases.mean() < 0.05,
 
-# To test the outputs, we explicitly set weights with fixed values. DO NOT DO THAT IN ACTUAL NETWORK!
+
 l = Dense(3,4)
 
 x = np.linspace(-1,1,2*3).reshape([2,3])
@@ -223,10 +183,7 @@ assert np.allclose(l.forward(x),np.array([[ 0.07272727,  0.41212121,  0.75151515
 print("Well done!")
 
 
-# In[32]:
 
-
-# To test the grads, we use gradients obtained via finite differences
 
 from util import eval_numerical_gradient
 
@@ -240,10 +197,7 @@ assert np.allclose(grads,numeric_grads,rtol=1e-3,atol=0), "input gradient does n
 print("Well done!")
 
 
-# In[35]:
 
-
-#test gradients w.r.t. params
 def compute_out_given_wb(w,b):
     l = Dense(32,64,learning_rate=1)
     l.weights = np.array(w)
@@ -265,33 +219,10 @@ numeric_dw = eval_numerical_gradient(lambda w: compute_out_given_wb(w,b).mean(0)
 numeric_db = eval_numerical_gradient(lambda b: compute_out_given_wb(w,b).mean(0).sum(),b )
 grad_w,grad_b = compute_grad_by_params(w,b)
 
-#assert np.allclose(numeric_dw,grad_w,rtol=1e-3,atol=0), "weight gradient does not match numeric weight gradient"
-#assert np.allclose(numeric_db,grad_b,rtol=1e-3,atol=0), "weight gradient does not match numeric weight gradient"
+
 print("Well done!")
 
 
-# ### The loss function
-# 
-# Since we want to predict probabilities, it would be logical for us to define softmax nonlinearity on top of our network and compute loss given predicted probabilities. However, there is a better way to do so.
-# 
-# If you write down the expression for crossentropy as a function of softmax logits (a), you'll see:
-# 
-# $$ loss = - log \space {e^{a_{correct}} \over {\underset i \sum e^{a_i} } } $$
-# 
-# If you take a closer look, ya'll see that it can be rewritten as:
-# 
-# $$ loss = - a_{correct} + log {\underset i \sum e^{a_i} } $$
-# 
-# It's called Log-softmax and it's better than naive log(softmax(a)) in all aspects:
-# * Better numerical stability
-# * Easier to get derivative right
-# * Marginally faster to compute
-# 
-# So why not just use log-softmax throughout our computation and never actually bother to estimate probabilities.
-# 
-# Here you are! We've defined the both loss functions for you so that you could focus on neural network part.
-
-# In[36]:
 
 
 def softmax_crossentropy_with_logits(logits,reference_answers):
@@ -322,15 +253,12 @@ softmax_crossentropy_with_logits(logits,answers)
 grads = grad_softmax_crossentropy_with_logits(logits,answers)
 numeric_grads = eval_numerical_gradient(lambda l: softmax_crossentropy_with_logits(l,answers).mean(),logits)
 
-assert np.allclose(numeric_grads,grads,rtol=1e-3,atol=0), "The reference implementation has just failed. Someone has just changed the rules of math."
+assert np.allclose(numeric_grads,grads,rtol=1e-3,atol=0),
 
 
 # ### Full network
 # 
-# Now let's combine what we've just built into a working neural network. As we announced, we're gonna use this monster to classify handwritten digits, so let's get them loaded.
-
-# In[38]:
-
+# Now let's combine what we've just built into a working neural network
 
 import matplotlib.pyplot as plt
 get_ipython().magic('matplotlib inline')
@@ -347,7 +275,7 @@ for i in range(4):
 
 # We'll define network as a list of layers, each applied on top of previous one. In this setting, computing predictions and training becomes trivial.
 
-# In[39]:
+
 
 
 network = []
@@ -358,7 +286,7 @@ network.append(ReLU())
 network.append(Dense(200,10))
 
 
-# In[44]:
+
 
 
 def forward(network, X):
@@ -370,7 +298,7 @@ def forward(network, X):
     activations = []
     input = X
 
-    # <your code here>
+    
     for layer in network:
         output=layer.forward(input)
         activations.append(output)
@@ -380,9 +308,7 @@ def forward(network, X):
     return activations
 
 def predict(network,X):
-    """
-    Compute network predictions.
-    """
+    
     logits = forward(network,X)[-1]
     return logits.argmax(axis=-1)
 
@@ -395,16 +321,16 @@ def train(network,X,y):
     After you called backward for all layers, all Dense layers have already made one gradient step.
     """
     
-    # Get the layer activations
+    
     layer_activations = forward(network,X)
-    layer_inputs = [X]+layer_activations  #layer_input[i] is an input for network[i]
+    layer_inputs = [X]+layer_activations  
     logits = layer_activations[-1]
     
-    # Compute the loss and the initial gradient
+    
     loss = softmax_crossentropy_with_logits(logits,y)
     loss_grad = grad_softmax_crossentropy_with_logits(logits,y)
     
-    # <your code: propagate gradients through the network>
+   
     grad_output=loss_grad
     layer_inputs=layer_inputs[:-1]
     for input,layer in zip(layer_inputs[::-1],network[::-1]):
@@ -413,15 +339,8 @@ def train(network,X,y):
     return np.mean(loss)
 
 
-# Instead of tests, we provide you with a training loop that prints training and validation accuracies on every epoch.
-# 
-# If your implementation of forward and backward are correct, your accuracy should grow from 90~93% to >97% with the default network.
 
-# ### Training loop
-# 
-# As usual, we split data into minibatches, feed each such minibatch into the network and update weights.
 
-# In[45]:
 
 
 def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
@@ -436,7 +355,6 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
         yield inputs[excerpt], targets[excerpt]
 
 
-# In[46]:
 
 
 from IPython.display import clear_output
@@ -444,7 +362,7 @@ train_log = []
 val_log = []
 
 
-# In[47]:
+
 
 
 for epoch in range(25):
@@ -467,57 +385,12 @@ for epoch in range(25):
     
 
 
-# ### Peer-reviewed assignment
-# 
-# Congradulations, you managed to get this far! There is just one quest left undone, and this time you'll get to choose what to do.
-# 
-# 
+
+
 # #### Option I: initialization
 # * Implement Dense layer with Xavier initialization as explained [here](http://bit.ly/2vTlmaJ)
 # 
 # To pass this assignment, you must conduct an experiment showing how xavier initialization compares to default initialization on deep networks (5+ layers).
-# 
-# 
-# #### Option II: regularization
-# * Implement a version of Dense layer with L2 regularization penalty: when updating Dense Layer weights, adjust gradients to minimize
-# 
-# $$ Loss = Crossentropy + \alpha \cdot \underset i \sum {w_i}^2 $$
-# 
-# To pass this assignment, you must conduct an experiment showing if regularization mitigates overfitting in case of abundantly large number of neurons. Consider tuning $\alpha$ for better results.
-# 
-# #### Option III: optimization
-# * Implement a version of Dense layer that uses momentum/rmsprop or whatever method worked best for you last time.
-# 
-# Most of those methods require persistent parameters like momentum direction or moving average grad norm, but you can easily store those params inside your layers.
-# 
-# To pass this assignment, you must conduct an experiment showing how your chosen method performs compared to vanilla SGD.
-# 
-# ### General remarks
-# _Please read the peer-review guidelines before starting this part of the assignment._
-# 
-# In short, a good solution is one that:
-# * is based on this notebook
-# * runs in the default course environment with Run All
-# * its code doesn't cause spontaneous eye bleeding
-# * its report is easy to read.
-# 
-# _Formally we can't ban you from writing boring reports, but if you bored your reviewer to death, there's noone left alive to give you the grade you want._
-# 
-# 
-# ### Bonus assignments
-# 
-# As a bonus assignment (no points, just swag), consider implementing Batch Normalization ([guide](https://gab41.lab41.org/batch-normalization-what-the-hey-d480039a9e3b)) or Dropout ([guide](https://medium.com/@amarbudhiraja/https-medium-com-amarbudhiraja-learning-less-to-learn-better-dropout-in-deep-machine-learning-74334da4bfc5)). Note, however, that those "layers" behave differently when training and when predicting on test set.
-# 
-# * Dropout:
-#   * During training: drop units randomly with probability __p__ and multiply everything by __1/(1-p)__
-#   * During final predicton: do nothing; pretend there's no dropout
-#   
-# * Batch normalization
-#   * During training, it substracts mean-over-batch and divides by std-over-batch and updates mean and variance.
-#   * During final prediction, it uses accumulated mean and variance.
-# 
-
-# In[ ]:
 
 
 class DenseWithXavier(Layer):
