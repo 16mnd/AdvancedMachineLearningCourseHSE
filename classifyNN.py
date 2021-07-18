@@ -435,7 +435,7 @@ class DenseWithXavier(Layer):
         return grad_input
 
 
-# In[ ]:
+
 
 
 network = []
@@ -446,7 +446,7 @@ network.append(ReLU())
 network.append(DenseWithXavier(200,10))
 
 
-# In[ ]:
+
 
 
 train_log = []
