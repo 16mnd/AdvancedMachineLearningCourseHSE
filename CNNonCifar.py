@@ -1,40 +1,11 @@
-
-# coding: utf-8
-
-# # Your first CNN on CIFAR-10
-# 
-# In this task you will: 
-# * define your first CNN architecture for CIFAR-10 dataset
-# * train it from scratch
-# * visualize learnt filters
-# 
-# CIFAR-10 dataset contains 32x32 color images from 10 classes: __airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck__:
-# <img src="images/cifar10.jpg" style="width:80%">
-
-# # Import stuff
-
-# In[15]:
-
-
 import sys
 sys.path.append("..")
 import grading
 import download_utils
 
 
-# In[16]:
-
-
-# !!! remember to clear session/graph if you rebuild your graph to avoid out-of-memory errors !!!
-
-
-# In[17]:
-
 
 download_utils.link_all_keras_resources()
-
-
-# In[18]:
 
 
 import tensorflow as tf
@@ -50,41 +21,24 @@ import keras_utils
 from keras_utils import reset_tf_session
 
 
-# # Fill in your Coursera token and email
-# To successfully submit your answers to our grader, please fill in your Coursera submission token and email
-
-# In[19]:
-
-
 grader = grading.Grader(assignment_key="s1B1I5DuEeeyLAqI7dCYkg", 
                         all_parts=["7W4tu", "nQOsg", "96eco"])
 
 
-# In[20]:
 
-
-# token expires every 30 min
 COURSERA_TOKEN = "Y0UUxx0j7moufYn4"
 COURSERA_EMAIL = "matt.diciccomhs@aol.com"
 
-
-# # Load dataset
-
-# In[21]:
 
 
 from keras.datasets import cifar10
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
 
-# In[22]:
-
 
 print("Train samples:", x_train.shape, y_train.shape)
 print("Test samples:", x_test.shape, y_test.shape)
 
-
-# In[23]:
 
 
 NUM_CLASSES = 10
@@ -92,10 +46,7 @@ cifar10_classes = ["airplane", "automobile", "bird", "cat", "deer",
                    "dog", "frog", "horse", "ship", "truck"]
 
 
-# In[24]:
 
-
-# show random images from train
 cols = 8
 rows = 2
 fig = plt.figure(figsize=(2 * cols - 1, 2.5 * rows - 1))
@@ -110,16 +61,6 @@ for i in range(cols):
 plt.show()
 
 
-# # Prepare data
-
-# We need to normalize inputs like this: $$x_{norm} = \frac{x}{255} - 0.5$$
-# 
-# We need to convert class labels to one-hot encoded vectors. Use __keras.utils.to_categorical__.
-
-# In[25]:
-
-
-# normalize inputs
 x_train2 = x_train / 255.0 - 0.5 ### YOUR CODE HERE
 x_test2 = x_test / 255.0 - 0.5 ### YOUR CODE HERE
 
@@ -128,9 +69,6 @@ y_train2 = keras.utils.to_categorical(y_train, 10) ### YOUR CODE HERE
 y_test2 = keras.utils.to_categorical(y_test, 10) ### YOUR CODE H
 
 
-# # Define CNN architecture
-
-# In[26]:
 
 
 # import necessary building blocks
@@ -180,7 +118,6 @@ from keras.layers.advanced_activations import LeakyReLU
 # 
 # Add __Dropout__ after every pooling layer (__0.25__) and between dense layers (__0.5__).
 
-# In[27]:
 
 
 def make_model():
@@ -190,7 +127,7 @@ def make_model():
     """
     model = Sequential()
 
-   ### YOUR CODE HERE
+  
     model.add(InputLayer([32, 32, 3]))
     
     model.add(Conv2D(16, [3, 3], padding='same'))
@@ -218,24 +155,14 @@ def make_model():
     return model
 
 
-# In[28]:
 
-
-# describe model
 s = reset_tf_session()  # clear default graph
 model = make_model()
 model.summary()
 
 
-# In[ ]:
 
-
-## GRADED PART, DO NOT CHANGE!
-# Number of model parameters
 grader.set_answer("7W4tu", grading_utils.model_total_params(model))
-
-
-# In[ ]:
 
 
 # you can make submission with answers so far to check yourself at this stage
@@ -249,8 +176,6 @@ grader.submit(COURSERA_EMAIL, COURSERA_TOKEN)
 # During training you should observe the decrease in reported loss on training and validation.
 # 
 # If the loss on training is not decreasing with epochs you should revise your model definition and learning rate.
-
-# In[29]:
 
 
 INIT_LR = 5e-3  # initial learning rate
@@ -280,9 +205,6 @@ class LrHistory(keras.callbacks.Callback):
 
 # Training takes approximately **1.5 hours**. You're aiming for ~0.80 validation accuracy.
 
-# In[30]:
-
-
 # we will save model checkpoints to continue training in case of kernel death
 model_filename = 'cifar.{0:03d}.hdf5'
 last_finished_epoch = None
@@ -295,10 +217,6 @@ last_finished_epoch = 7
 model = load_model(model_filename.format(last_finished_epoch))
 
 
-# In[31]:
-
-
-# fit model
 model.fit(
     x_train2, y_train2,  # prepared data
     batch_size=BATCH_SIZE,
@@ -314,32 +232,20 @@ model.fit(
 )
 
 
-# In[32]:
-
 
 # save weights to file
 model.save_weights("weights.h5")
 
-
-# In[33]:
 
 
 # load weights from file (can call without model.fit)
 model.load_weights("weights.h5")
 
 
-# # Evaluate model
-
-# In[ ]:
-
-
 # make test predictions
 y_pred_test = model.predict_proba(x_test2)
 y_pred_test_classes = np.argmax(y_pred_test, axis=1)
 y_pred_test_max_probas = np.max(y_pred_test, axis=1)
-
-
-# In[34]:
 
 
 # confusion matrix and accuracy
@@ -354,22 +260,14 @@ plt.show()
 print("Test accuracy:", accuracy_score(y_test, y_pred_test_classes))
 
 
-# In[ ]:
-
-
-## GRADED PART, DO NOT CHANGE!
 # Accuracy on validation data
 grader.set_answer("nQOsg", accuracy_score(y_test, y_pred_test_classes))
 
-
-# In[ ]:
 
 
 # you can make submission with answers so far to check yourself at this stage
 grader.submit(COURSERA_EMAIL, COURSERA_TOKEN)
 
-
-# In[ ]:
 
 
 # inspect preditions
@@ -400,23 +298,14 @@ plt.show()
 # 
 # For that task we load our model weights, calculate the layer output gradient with respect to image input and shift input image in that direction.
 
-# In[35]:
-
-
 s = reset_tf_session()  # clear default graph
 K.set_learning_phase(0)  # disable dropout
 model = make_model()
 model.load_weights("weights.h5")  # that were saved after model.fit
 
 
-# In[ ]:
-
-
 # all weights we have
 model.summary()
-
-
-# In[ ]:
 
 
 def find_maximum_stimuli(layer_name, is_conv, filter_index, model, iterations=20, step=1., verbose=True):
@@ -474,9 +363,6 @@ def find_maximum_stimuli(layer_name, is_conv, filter_index, model, iterations=20
     return img, loss_value
 
 
-# In[36]:
-
-
 # sample maximum stimuli
 def plot_filters_stimuli(layer_name, is_conv, model, iterations=20, step=1., verbose=False):
     cols = 8
@@ -501,9 +387,6 @@ def plot_filters_stimuli(layer_name, is_conv, model, iterations=20, step=1., ver
     plt.show()
 
 
-# In[37]:
-
-
 # maximum stimuli for convolutional neurons
 conv_activation_layers = []
 for layer in model.layers:
@@ -517,16 +400,10 @@ for layer in conv_activation_layers:
     plot_filters_stimuli(layer_name=layer.name, is_conv=True, model=model)
 
 
-# In[38]:
-
-
 # maximum stimuli for last dense layer
 last_dense_layer = list(filter(lambda x: isinstance(x, Dense), model.layers))[-1]
 plot_filters_stimuli(layer_name=last_dense_layer.name, is_conv=False, 
                      iterations=200, step=0.1, model=model)
-
-
-# In[39]:
 
 
 def maximum_stimuli_test_for_grader():
@@ -541,31 +418,11 @@ def maximum_stimuli_test_for_grader():
     )
     return model.predict_proba(stimuli[np.newaxis, :])[0, output_index]
 
-
-# In[40]:
-
-
-## GRADED PART, DO NOT CHANGE!
 # Maximum stimuli test
 grader.set_answer("96eco", maximum_stimuli_test_for_grader())
 
-
-# In[41]:
-
-
 # you can make submission with answers so far to check yourself at this stage
 grader.submit(COURSERA_EMAIL, COURSERA_TOKEN)
-
-
-# That's it! Congratulations!
-# 
-# What you've done:
-# - defined CNN architecture
-# - trained your model
-# - evaluated your model
-# - visualised learnt filters
-
-# In[ ]:
 
 
 
