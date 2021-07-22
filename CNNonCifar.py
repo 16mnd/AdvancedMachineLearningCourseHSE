@@ -423,25 +423,3 @@ grader.set_answer("96eco", maximum_stimuli_test_for_grader())
 
 # you can make submission with answers so far to check yourself at this stage
 grader.submit(COURSERA_EMAIL, COURSERA_TOKEN)
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
